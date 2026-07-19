@@ -1,0 +1,10 @@
+.env
+*.db
+*.sqlite
+videos/*.mp4
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+*.log

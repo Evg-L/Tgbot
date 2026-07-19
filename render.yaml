@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: tg-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.10
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: DB_NAME
+        value: bot_database.db
+      - key: VIDEO_FOLDER
+        value: videos
+      - key: PORT
+        value: 5000
