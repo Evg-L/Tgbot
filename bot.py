@@ -18,7 +18,10 @@ from config import Config
 from database import Database
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Проверка конфигурации
@@ -321,8 +324,8 @@ async def handle_video_upload(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 # ===================== ЗАПУСК =====================
 
-def main():
-    """Запуск бота"""
+async def run_bot():
+    """Асинхронный запуск бота"""
     logger.info("🤖 Запуск бота...")
     logger.info(f"Категории видео: {len(Config.NAMES)}")
     logger.info(f"Администраторы: {Config.ADMIN_IDS}")
@@ -343,17 +346,30 @@ def main():
     # Запуск
     logger.info("🚀 Бот готов к работе!")
 
-    # Исправление: создаем новый event loop или используем asyncio.run()
-    try:
-        # Пытаемся получить текущий event loop
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        # Если нет running loop, создаем новый
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    # Запускаем polling
+    await application.initialize()
+    await application.start()
+    await application.updater.start_polling()
 
-    # Запускаем бота
-    application.run_polling()
+    # Держим бота активным
+    try:
+        while True:
+            await asyncio.sleep(3600)  # Спим час
+    except KeyboardInterrupt:
+        logger.info("🛑 Остановка бота...")
+        await application.updater.stop()
+        await application.stop()
+        await application.shutdown()
+
+
+def main():
+    """Главная функция"""
+    try:
+        asyncio.run(run_bot())
+    except KeyboardInterrupt:
+        logger.info("🛑 Бот остановлен пользователем")
+    except Exception as e:
+        logger.error(f"❌ Критическая ошибка: {e}")
 
 
 if __name__ == "__main__":
